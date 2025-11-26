@@ -1,0 +1,4 @@
+#!/usr/bin/env php
+<?php
+// Forward to the vendor binary
+require __DIR__ . '/../vendor/bin/gemvc';

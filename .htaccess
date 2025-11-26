@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    RewriteCond %{HTTP:Authorization} ^(.+)$
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-l
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>
+
+Options -Indexes
+
+AddDefaultCharset UTF-8
+
+<FilesMatch "\.(env|htaccess|ini|log|sh|bak|json|lock)$">
+    Require all denied
+</FilesMatch>
+
+# Deny access to app/, vendor/, bin/, config/, templates/ directories
+# Note: <Directory> is not allowed in .htaccess, using RedirectMatch instead
+RedirectMatch 403 ^/(app|vendor|bin|config|templates)/ 

@@ -1,0 +1,82 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html:delegated
+    restart: unless-stopped
+    networks:
+      - backend-network
+    depends_on:
+      - db
+      - redis
+    environment:
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "rootpassword"
+      REDIS_DATABASE: "0"
+      REDIS_PREFIX: "gemvc:"
+      REDIS_PERSISTENT: "true"
+      REDIS_TIMEOUT: "0.0"
+      REDIS_READ_TIMEOUT: "0.0"
+
+  redis:
+    image: redis:latest
+    command: redis-server --requirepass rootpassword
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: "db"
+      PMA_PORT: "3306"
+      MYSQL_ROOT_PASSWORD: "rootpassword"
+    depends_on:
+      - db
+    networks:
+      - backend-network
+
+  db:
+    image: mysql:8.0
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --authentication-policy=caching_sha2_password
+      - --host-cache-size=0
+      - --pid-file=/var/lib/mysql/mysql.pid
+      - --disable-ssl
+      - --log-error-verbosity=1
+      - --skip-log-bin
+      - --skip-name-resolve
+      - --skip-symbolic-links
+      - --innodb-flush-log-at-trx-commit=2
+      - --innodb-buffer-pool-size=128M
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "rootpassword"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    networks:
+      - backend-network
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  backend-network:
+    driver: bridge
