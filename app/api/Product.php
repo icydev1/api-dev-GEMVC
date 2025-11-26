@@ -29,8 +29,13 @@ class Product extends ApiService
     public function create(): JsonResponse
     {
         if(!$this->request->definePostSchema([
-            'name' => 'string',
-            'description' => 'string'
+            'name'         => 'string',
+            'description'  => 'string',
+            'color'        => 'string',
+            'price'        => 'float',
+            'stock'        => 'int',
+            'sku'          => 'string',
+            'category_id'  => 'int'
         ])) {
             return $this->request->returnResponse();
         }
@@ -74,9 +79,14 @@ class Product extends ApiService
     public function update(): JsonResponse
     {
         if(!$this->request->definePostSchema([
-            'id' => 'int',
-            '?name' => 'string',
-            '?description' => 'string'
+            'id'           => 'int',
+            '?name'        => 'string',
+            '?description' => 'string',
+            '?color'       => 'string',
+            '?price'       => 'float',
+            '?stock'       => 'int',
+            '?sku'         => 'string',
+            '?category_id' => 'int'
         ])) {
             return $this->request->returnResponse();
         }
@@ -113,15 +123,22 @@ class Product extends ApiService
     {
         // Define searchable fields and their types
         $this->request->findable([
-            'name' => 'string',
-            'description' => 'string'
+            'name'         => 'string',
+            'description'  => 'string',
+            'color'        => 'string',
+            'sku'          => 'string'
         ]);
 
         // Define sortable fields
         $this->request->sortable([
             'id',
             'name',
-            'description'
+            'description',
+            'color',
+            'price',
+            'stock',
+            'sku',
+            'category_id'
         ]);
         
         return (new ProductController($this->request))->list();
